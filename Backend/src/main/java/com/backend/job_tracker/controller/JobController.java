@@ -24,4 +24,9 @@ public class JobController {
     public List<JobResponseDTO> getJobsByUserId(@PathVariable Long userId) {
         return jobService.getJobsByUserId(userId);
     }
+
+    @PutMapping("/{jobId}")
+    public JobResponseDTO updateJob(@PathVariable Long jobId, @RequestBody JobRequestDTO jobRequestDTO) {
+        return jobService.updateJob(jobId, jobRequestDTO);
+    }
 }

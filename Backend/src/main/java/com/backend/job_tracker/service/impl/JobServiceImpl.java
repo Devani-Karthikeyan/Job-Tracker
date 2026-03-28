@@ -70,6 +70,24 @@ public class JobServiceImpl implements JobService {
                 .collect(Collectors.toList());
     }
 
+    @Override
+    public JobResponseDTO updateJob(Long jobId, JobRequestDTO jobRequestDTO) {
+        Job job = jobRepository.findById(jobId)
+                .orElseThrow(()-> new RuntimeException("Job not Found"));
+
+        job.setTitle(jobRequestDTO.getTitle());
+        job.setCompany(jobRequestDTO.getCompany());
+        job.setStatus(jobRequestDTO.getStatus());
+        job.setType(jobRequestDTO.getType());
+        job.setAppliedDate(jobRequestDTO.getAppliedDate());
+        job.setInterviewDate(jobRequestDTO.getInterviewDate());
+        job.setNotes(jobRequestDTO.getNotes());
+
+        Job updateJob = jobRepository.save(job);
+
+        return mapToResponseDTO(updateJob);
+    }
+
 }
 
 
