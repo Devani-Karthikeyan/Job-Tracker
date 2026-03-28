@@ -88,6 +88,14 @@ public class JobServiceImpl implements JobService {
         return mapToResponseDTO(updateJob);
     }
 
+    @Override
+    public String deleteJob(Long jobId) {
+        Job job = jobRepository.findById(jobId)
+                .orElseThrow(()->new RuntimeException("Job not Found"));
+        jobRepository.delete(job);
+        return "Job deleted successfully";
+    }
+
 }
 
 

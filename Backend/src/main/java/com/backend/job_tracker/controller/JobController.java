@@ -29,4 +29,9 @@ public class JobController {
     public JobResponseDTO updateJob(@PathVariable Long jobId, @RequestBody JobRequestDTO jobRequestDTO) {
         return jobService.updateJob(jobId, jobRequestDTO);
     }
+
+    @DeleteMapping("/{jobId}")
+    public String deleteJob(@PathVariable Long jobId) {
+        return jobService.deleteJob(jobId);
+    }
 }
