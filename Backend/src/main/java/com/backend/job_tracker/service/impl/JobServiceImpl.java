@@ -10,6 +10,9 @@ import com.backend.job_tracker.service.JobService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Service
 public class JobServiceImpl implements JobService {
     @Autowired
@@ -35,18 +38,36 @@ public class JobServiceImpl implements JobService {
 
         Job savedJob = jobRepository.save(job);
 
+
+        return mapToResponseDTO(savedJob);
+    }
+
+    private JobResponseDTO mapToResponseDTO(Job job){
         JobResponseDTO responseDTO = new JobResponseDTO();
-        responseDTO.setId(savedJob.getId());
-        responseDTO.setTitle(savedJob.getTitle());
-        responseDTO.setCompany(savedJob.getCompany());
-        responseDTO.setStatus(savedJob.getStatus());
-        responseDTO.setType(savedJob.getType());
-        responseDTO.setAppliedDate(java.sql.Date.valueOf(savedJob.getAppliedDate()));
-        responseDTO.setInterviewDate(java.sql.Date.valueOf(savedJob.getInterviewDate()));
-        responseDTO.setNotes(savedJob.getNotes());
-        responseDTO.setUserId(savedJob.getUser().getId());
+        responseDTO.setId(job.getId());
+        responseDTO.setTitle(job.getTitle());
+        responseDTO.setCompany(job.getCompany());
+        responseDTO.setStatus(job.getStatus());
+        responseDTO.setType(job.getType());
+        responseDTO.setAppliedDate(java.sql.Date.valueOf(job.getAppliedDate()));
+        responseDTO.setInterviewDate(java.sql.Date.valueOf(job.getInterviewDate()));
+        responseDTO.setNotes(job.getNotes());
+        responseDTO.setUserId(job.getUser().getId());
 
         return responseDTO;
+
+    }
+
+    @Override
+    public List<JobResponseDTO> getJobsByUserId(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        List<Job> jobs = jobRepository.findByUserId(userId);
+
+        return jobs.stream()
+                .map(this::mapToResponseDTO)
+                .collect(Collectors.toList());
     }
 
 }

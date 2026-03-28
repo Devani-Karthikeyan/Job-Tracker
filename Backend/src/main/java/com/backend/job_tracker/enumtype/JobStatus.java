@@ -5,5 +5,5 @@ public enum JobStatus {
     APPLIED,
     INTERVIEW,
     OFFERED,
-    Rejected
+    REJECTED
 }
