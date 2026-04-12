@@ -17,15 +17,7 @@ public class AuthServiceImpl implements AuthService {
     private UserRepository userRepository;
 
     @Override
-<<<<<<< HEAD
-    public String registerUser(UserDTO userDTO){
-=======
-<<<<<<< Updated upstream
-    public String registerUser(@RequestBody UserDTO userDTO){
->>>>>>> dcd362b (refactor: replace UserDTO with request/response DTOs for authentication)
-        if(userRepository.findByEmail(userDTO.getEmail()).isPresent()){
-            return "Error: Email Already exists!";
-=======
+
     public AuthResponseDTO registerUser(RegisterRequestDTO registerRequestDTO){
         if(userRepository.findByEmail(registerRequestDTO.getEmail()).isPresent()){
             return new AuthResponseDTO(
@@ -35,7 +27,6 @@ public class AuthServiceImpl implements AuthService {
                     null
 
             );
->>>>>>> Stashed changes
         }
         User user = new User();
         user.setName(registerRequestDTO.getName());
