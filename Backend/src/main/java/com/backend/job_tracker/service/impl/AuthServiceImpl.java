@@ -5,6 +5,7 @@ import com.backend.job_tracker.dto.request.RegisterRequestDTO;
 import com.backend.job_tracker.dto.response.AuthResponseDTO;
 import com.backend.job_tracker.model.User;
 import com.backend.job_tracker.repository.UserRepository;
+import com.backend.job_tracker.security.JwtUtil;
 import com.backend.job_tracker.service.AuthService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -15,7 +16,8 @@ import java.util.Optional;
 public class AuthServiceImpl implements AuthService {
     @Autowired
     private UserRepository userRepository;
-
+    @Autowired
+    private JwtUtil jwtUtil;
     @Override
 
     public AuthResponseDTO registerUser(RegisterRequestDTO registerRequestDTO){
@@ -49,8 +51,11 @@ public class AuthServiceImpl implements AuthService {
 
         if(existingUser.isPresent() && existingUser.get().getPassword().equals(loginRequestDTO.getPassword())){
             User user = existingUser.get();
+
+            String token = jwtUtil.generateToken(user.getEmail());
+
             return new AuthResponseDTO(
-                    "Login Successful!",
+                    token,
                     user.getId(),
                     user.getName(),
                     user.getEmail()
