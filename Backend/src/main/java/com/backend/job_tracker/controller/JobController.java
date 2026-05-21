@@ -6,6 +6,8 @@ import com.backend.job_tracker.service.JobService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/jobs")
 public class JobController {
@@ -16,5 +18,20 @@ public class JobController {
     public JobResponseDTO addJob(@PathVariable Long userId,
             @RequestBody JobRequestDTO jobRequestDTO){
         return jobService.addJob(userId,jobRequestDTO);
+    }
+
+    @GetMapping("/user/{userId}")
+    public List<JobResponseDTO> getJobsByUserId(@PathVariable Long userId) {
+        return jobService.getJobsByUserId(userId);
+    }
+
+    @PutMapping("/{jobId}")
+    public JobResponseDTO updateJob(@PathVariable Long jobId, @RequestBody JobRequestDTO jobRequestDTO) {
+        return jobService.updateJob(jobId, jobRequestDTO);
+    }
+
+    @DeleteMapping("/{jobId}")
+    public String deleteJob(@PathVariable Long jobId) {
+        return jobService.deleteJob(jobId);
     }
 }
