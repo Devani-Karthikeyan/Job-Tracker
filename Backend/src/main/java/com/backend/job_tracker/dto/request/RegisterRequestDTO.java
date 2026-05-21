@@ -1,11 +1,10 @@
-package com.backend.job_tracker.dto;
+package com.backend.job_tracker.dto.request;
 
 import lombok.Data;
 
 @Data
-public class UserDTO {
+public class RegisterRequestDTO {
     private String name;
     private String email;
     private String password;
-
 }
