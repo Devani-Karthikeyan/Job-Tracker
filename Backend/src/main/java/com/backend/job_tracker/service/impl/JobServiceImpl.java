@@ -41,8 +41,8 @@ public class JobServiceImpl implements JobService {
         responseDTO.setCompany(savedJob.getCompany());
         responseDTO.setStatus(savedJob.getStatus());
         responseDTO.setType(savedJob.getType());
-        responseDTO.setAppliedDate(java.sql.Date.valueOf(savedJob.getAppliedDate()));
-        responseDTO.setInterviewDate(java.sql.Date.valueOf(savedJob.getInterviewDate()));
+        responseDTO.setAppliedDate(savedJob.getAppliedDate() != null ? java.sql.Date.valueOf(savedJob.getAppliedDate()) : null);
+        responseDTO.setInterviewDate(savedJob.getInterviewDate() != null ? java.sql.Date.valueOf(savedJob.getInterviewDate()) : null);
         responseDTO.setNotes(savedJob.getNotes());
         responseDTO.setUserId(savedJob.getUser().getId());
 

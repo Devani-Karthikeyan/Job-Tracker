@@ -1,5 +1,6 @@
 package com.backend.job_tracker.service.impl;
 
+import org.springframework.security.crypto.password.PasswordEncoder;
 import com.backend.job_tracker.dto.request.LoginRequestDTO;
 import com.backend.job_tracker.dto.request.RegisterRequestDTO;
 import com.backend.job_tracker.dto.response.AuthResponseDTO;
@@ -9,15 +10,18 @@ import com.backend.job_tracker.security.JwtUtil;
 import com.backend.job_tracker.service.AuthService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.Optional;
 @Service
 public class AuthServiceImpl implements AuthService {
     @Autowired
     private UserRepository userRepository;
+
     @Autowired
     private JwtUtil jwtUtil;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
     @Override
 
     public AuthResponseDTO registerUser(RegisterRequestDTO registerRequestDTO){
@@ -33,7 +37,7 @@ public class AuthServiceImpl implements AuthService {
         User user = new User();
         user.setName(registerRequestDTO.getName());
         user.setEmail(registerRequestDTO.getEmail());
-        user.setPassword(registerRequestDTO.getPassword());
+        user.setPassword(passwordEncoder.encode(registerRequestDTO.getPassword()));
 
         userRepository.save(user);
 
@@ -46,10 +50,17 @@ public class AuthServiceImpl implements AuthService {
 
     }
     @Override
-    public AuthResponseDTO loginUser(@RequestBody LoginRequestDTO loginRequestDTO){
-        Optional<User> existingUser =userRepository.findByEmail(loginRequestDTO.getEmail());
+    public AuthResponseDTO loginUser(LoginRequestDTO loginRequestDTO) {
 
-        if(existingUser.isPresent() && existingUser.get().getPassword().equals(loginRequestDTO.getPassword())){
+        Optional<User> existingUser =
+                userRepository.findByEmail(loginRequestDTO.getEmail());
+
+        if (existingUser.isPresent() &&
+                passwordEncoder.matches(
+                        loginRequestDTO.getPassword(),
+                        existingUser.get().getPassword()
+                )) {
+
             User user = existingUser.get();
 
             String token = jwtUtil.generateToken(user.getEmail());
@@ -61,6 +72,7 @@ public class AuthServiceImpl implements AuthService {
                     user.getEmail()
             );
         }
+
         return new AuthResponseDTO(
                 "Error : Invalid Email or Password",
                 null,

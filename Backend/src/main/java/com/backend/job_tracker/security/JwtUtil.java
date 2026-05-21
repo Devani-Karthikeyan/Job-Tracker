@@ -1,17 +1,20 @@
 package com.backend.job_tracker.security;
 
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import java.security.Key;
-import io.jsonwebtoken.io.Decoders;
-import io.jsonwebtoken.SignatureAlgorithm;
 import java.util.Date;
 
 @Component
 public class JwtUtil {
 
-    private final Key key = Keys.secretKeyFor(SignatureAlgorithm.HS256);
+    private static final String SECRET =
+            "my-super-secret-key-my-super-secret-key-123456";
+
+    private final Key key =
+            Keys.hmacShaKeyFor(SECRET.getBytes());
 
     public String generateToken(String email) {
         return Jwts.builder()
@@ -30,7 +33,10 @@ public class JwtUtil {
                 .getSubject();
     }
 
-    public boolean validateToken(String token, String email) {
-        return extractEmail(token).equals(email);
+    public boolean validateToken(String token, UserDetails userDetails) {
+
+        final String email = extractEmail(token);
+
+        return email.equals(userDetails.getUsername());
     }
 }
