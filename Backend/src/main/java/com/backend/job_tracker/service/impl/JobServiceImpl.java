@@ -96,6 +96,16 @@ public class JobServiceImpl implements JobService {
         return "Job deleted successfully";
     }
 
+    @Override
+    public List<Job> searchJobs(String keyword, String email) {
+
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() ->
+                        new RuntimeException("User not found"));
+
+        return jobRepository.searchJobs(keyword, user.getId());
+    }
+
 }
 
 

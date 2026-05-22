@@ -2,8 +2,11 @@ package com.backend.job_tracker.controller;
 
 import com.backend.job_tracker.dto.request.JobRequestDTO;
 import com.backend.job_tracker.dto.response.JobResponseDTO;
+import com.backend.job_tracker.model.Job;
 import com.backend.job_tracker.service.JobService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -33,5 +36,18 @@ public class JobController {
     @DeleteMapping("/{jobId}")
     public String deleteJob(@PathVariable Long jobId) {
         return jobService.deleteJob(jobId);
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<List<Job>> searchJobs(
+            @RequestParam String keyword,
+            Authentication authentication
+    ) {
+
+        String email = authentication.getName();
+
+        return ResponseEntity.ok(
+                jobService.searchJobs(keyword, email)
+        );
     }
 }
