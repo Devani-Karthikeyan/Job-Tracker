@@ -8,9 +8,11 @@ import java.util.List;
 
 public interface JobService {
 
-    JobResponseDTO addJob(Long userId, JobRequestDTO jobRequestDTO);
+    JobResponseDTO addJob(String email, JobRequestDTO jobRequestDTO);
 
-    List<JobResponseDTO> getJobsByUserId(Long userId);
+    List<JobResponseDTO> getJobsByUser(String email);
+
+    JobResponseDTO getJobById(Long jobId);
 
     JobResponseDTO updateJob(Long jobId, JobRequestDTO jobRequestDTO);
 

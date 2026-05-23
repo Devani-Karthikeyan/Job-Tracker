@@ -17,15 +17,28 @@ public class JobController {
     @Autowired
     private JobService jobService;
 
-    @PostMapping("/create/{userId}")
-    public JobResponseDTO addJob(@PathVariable Long userId,
-            @RequestBody JobRequestDTO jobRequestDTO){
-        return jobService.addJob(userId,jobRequestDTO);
+    @PostMapping("/create")
+    public JobResponseDTO addJob(
+            @RequestBody JobRequestDTO jobRequestDTO,
+            Authentication authentication
+    ) {
+        String email = authentication.getName();
+        return jobService.addJob(email, jobRequestDTO);
     }
 
-    @GetMapping("/user/{userId}")
-    public List<JobResponseDTO> getJobsByUserId(@PathVariable Long userId) {
-        return jobService.getJobsByUserId(userId);
+    @GetMapping
+    public List<JobResponseDTO> getJobs(Authentication authentication) {
+
+        String email = authentication.getName();
+
+        return jobService.getJobsByUser(email);
+    }
+
+    @GetMapping("/{jobId}")
+    public JobResponseDTO getJobById(
+            @PathVariable Long jobId
+    ) {
+        return jobService.getJobById(jobId);
     }
 
     @PutMapping("/{jobId}")
