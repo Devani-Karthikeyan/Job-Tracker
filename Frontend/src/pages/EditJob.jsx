@@ -1,9 +1,10 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import api from "../api/axiosConfig";
-import { getUser } from "../features/auth/authService";
 
-const AddJob = () => {
+const EditJob = () => {
+
+  const { id } = useParams();
 
   const navigate = useNavigate();
 
@@ -13,48 +14,61 @@ const AddJob = () => {
     status: "APPLIED",
     type: "ONSITE",
     appliedDate: "",
-    interviewDate: null,
+    interviewDate: "",
     notes: "",
   });
 
-  // HANDLE INPUT CHANGE
+  useEffect(() => {
+    loadJob();
+  }, []);
+
+  const loadJob = async () => {
+
+    try {
+
+      const res = await api.get(`/jobs/${id}`);
+
+      setFormData({
+        title: res.data.title || "",
+        company: res.data.company || "",
+        status: res.data.status || "APPLIED",
+        type: res.data.type || "ONSITE",
+        appliedDate: res.data.appliedDate || "",
+        interviewDate: res.data.interviewDate || "",
+        notes: res.data.notes || "",
+      });
+
+    } catch (error) {
+      console.log(error);
+      alert("Failed to load job");
+    }
+  };
+
   const handleChange = (e) => {
+
     setFormData({
       ...formData,
       [e.target.name]: e.target.value,
     });
   };
 
-  // HANDLE SUBMIT
   const handleSubmit = async (e) => {
+
     e.preventDefault();
 
     try {
 
-      // CLEAN DATA BEFORE SEND
-      const jobData = {
-        ...formData,
-        appliedDate: formData.appliedDate || null,
-        interviewDate: formData.interviewDate || null,
-      };
+      await api.put(`/jobs/${id}`, formData);
 
-      console.log("Sending Job Data:", jobData);
-
-      // API CALL (MATCH YOUR BACKEND)
-      await api.post(
-        `/jobs/create`,
-        jobData
-      );
-
-      alert("Job Added Successfully");
+      alert("Job updated successfully");
 
       navigate("/dashboard");
 
     } catch (error) {
 
-      console.log("ERROR RESPONSE:", error.response?.data);
+      console.log(error);
 
-      alert(error.response?.data?.message || "Failed to add job");
+      alert("Failed to update job");
     }
   };
 
@@ -63,8 +77,8 @@ const AddJob = () => {
 
       <div className="bg-white rounded-2xl shadow-md p-8 w-full">
 
-        <h1 className="text-3xl font-bold mb-8 text-gray-800">
-          Add New Job
+        <h1 className="text-3xl font-bold mb-8">
+          Edit Job
         </h1>
 
         <form
@@ -72,35 +86,33 @@ const AddJob = () => {
           className="grid grid-cols-1 md:grid-cols-2 gap-6"
         >
 
-          {/* TITLE */}
           <div>
-            <label className="block mb-2 font-medium">Job Title</label>
+            <label className="block mb-2">Job Title</label>
+
             <input
               type="text"
               name="title"
               value={formData.title}
               onChange={handleChange}
               className="w-full border rounded-lg p-3"
-              required
             />
           </div>
 
-          {/* COMPANY */}
           <div>
-            <label className="block mb-2 font-medium">Company</label>
+            <label className="block mb-2">Company</label>
+
             <input
               type="text"
               name="company"
               value={formData.company}
               onChange={handleChange}
               className="w-full border rounded-lg p-3"
-              required
             />
           </div>
 
-          {/* STATUS */}
           <div>
-            <label className="block mb-2 font-medium">Status</label>
+            <label className="block mb-2">Status</label>
+
             <select
               name="status"
               value={formData.status}
@@ -114,9 +126,9 @@ const AddJob = () => {
             </select>
           </div>
 
-          {/* TYPE (FIXED ENUM) */}
           <div>
-            <label className="block mb-2 font-medium">Job Type</label>
+            <label className="block mb-2">Job Type</label>
+
             <select
               name="type"
               value={formData.type}
@@ -129,21 +141,21 @@ const AddJob = () => {
             </select>
           </div>
 
-          {/* APPLIED DATE */}
           <div>
-            <label className="block mb-2 font-medium">Applied Date</label>
+            <label className="block mb-2">Applied Date</label>
+
             <input
               type="date"
               name="appliedDate"
-              value={formData.appliedDate}
+              value={formData.appliedDate || ""}
               onChange={handleChange}
               className="w-full border rounded-lg p-3"
             />
           </div>
 
-          {/* INTERVIEW DATE */}
           <div>
-            <label className="block mb-2 font-medium">Interview Date</label>
+            <label className="block mb-2">Interview Date</label>
+
             <input
               type="date"
               name="interviewDate"
@@ -153,9 +165,9 @@ const AddJob = () => {
             />
           </div>
 
-          {/* NOTES */}
           <div className="md:col-span-2">
-            <label className="block mb-2 font-medium">Notes</label>
+            <label className="block mb-2">Notes</label>
+
             <textarea
               name="notes"
               value={formData.notes}
@@ -165,14 +177,15 @@ const AddJob = () => {
             />
           </div>
 
-          {/* SUBMIT */}
           <div className="md:col-span-2">
+
             <button
               type="submit"
               className="bg-blue-500 hover:bg-blue-600 text-white px-8 py-3 rounded-lg"
             >
-              Add Job
+              Update Job
             </button>
+
           </div>
 
         </form>
@@ -181,4 +194,4 @@ const AddJob = () => {
   );
 };
 
-export default AddJob;
+export default EditJob;
