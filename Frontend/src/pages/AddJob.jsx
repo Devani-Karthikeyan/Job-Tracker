@@ -31,14 +31,6 @@ const AddJob = () => {
 
     try {
 
-      const user = getUser();
-
-      // CHECK USER LOGIN
-      if (!user || !user.id) {
-        alert("User not logged in");
-        return;
-      }
-
       // CLEAN DATA BEFORE SEND
       const jobData = {
         ...formData,
@@ -50,7 +42,7 @@ const AddJob = () => {
 
       // API CALL (MATCH YOUR BACKEND)
       await api.post(
-        `/jobs/create/${user.id}`,
+        `/jobs/create`,
         jobData
       );
 
