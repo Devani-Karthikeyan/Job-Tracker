@@ -4,7 +4,6 @@ import api from "../api/axiosConfig";
 import { getUser } from "../features/auth/authService";
 
 const AddJob = () => {
-
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
@@ -17,7 +16,6 @@ const AddJob = () => {
     notes: "",
   });
 
-  // HANDLE INPUT CHANGE
   const handleChange = (e) => {
     setFormData({
       ...formData,
@@ -25,156 +23,109 @@ const AddJob = () => {
     });
   };
 
-  // HANDLE SUBMIT
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     try {
+      const user = getUser();
 
-      // CLEAN DATA BEFORE SEND
       const jobData = {
         ...formData,
+        userId: user?.id, 
         appliedDate: formData.appliedDate || null,
         interviewDate: formData.interviewDate || null,
       };
 
-      console.log("Sending Job Data:", jobData);
-
-      // API CALL (MATCH YOUR BACKEND)
-      await api.post(
-        `/jobs/create`,
-        jobData
-      );
+      await api.post("/jobs/create", jobData);
 
       alert("Job Added Successfully");
-
       navigate("/dashboard");
-
     } catch (error) {
-
-      console.log("ERROR RESPONSE:", error.response?.data);
-
+      console.log(error.response?.data);
       alert(error.response?.data?.message || "Failed to add job");
     }
   };
 
   return (
     <div className="w-full min-h-screen bg-gray-100 p-6">
-
       <div className="bg-white rounded-2xl shadow-md p-8 w-full">
-
         <h1 className="text-3xl font-bold mb-8 text-gray-800">
           Add New Job
         </h1>
 
-        <form
-          onSubmit={handleSubmit}
-          className="grid grid-cols-1 md:grid-cols-2 gap-6"
-        >
+        <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-6">
 
-          {/* TITLE */}
-          <div>
-            <label className="block mb-2 font-medium">Job Title</label>
-            <input
-              type="text"
-              name="title"
-              value={formData.title}
-              onChange={handleChange}
-              className="w-full border rounded-lg p-3"
-              required
-            />
-          </div>
+          <input
+            type="text"
+            name="title"
+            value={formData.title}
+            onChange={handleChange}
+            placeholder="Job Title"
+            className="border rounded-lg p-3"
+          />
 
-          {/* COMPANY */}
-          <div>
-            <label className="block mb-2 font-medium">Company</label>
-            <input
-              type="text"
-              name="company"
-              value={formData.company}
-              onChange={handleChange}
-              className="w-full border rounded-lg p-3"
-              required
-            />
-          </div>
+          <input
+            type="text"
+            name="company"
+            value={formData.company}
+            onChange={handleChange}
+            placeholder="Company"
+            className="border rounded-lg p-3"
+          />
 
-          {/* STATUS */}
-          <div>
-            <label className="block mb-2 font-medium">Status</label>
-            <select
-              name="status"
-              value={formData.status}
-              onChange={handleChange}
-              className="w-full border rounded-lg p-3"
-            >
-              <option value="APPLIED">Applied</option>
-              <option value="INTERVIEW">Interview</option>
-              <option value="REJECTED">Rejected</option>
-              <option value="ACCEPTED">Accepted</option>
-            </select>
-          </div>
+          <select
+            name="status"
+            value={formData.status}
+            onChange={handleChange}
+            className="border rounded-lg p-3"
+          >
+            <option value="APPLIED">Applied</option>
+            <option value="INTERVIEW">Interview</option>
+            <option value="REJECTED">Rejected</option>
+            <option value="ACCEPTED">Accepted</option>
+          </select>
 
-          {/* TYPE (FIXED ENUM) */}
-          <div>
-            <label className="block mb-2 font-medium">Job Type</label>
-            <select
-              name="type"
-              value={formData.type}
-              onChange={handleChange}
-              className="w-full border rounded-lg p-3"
-            >
-              <option value="ONSITE">Onsite</option>
-              <option value="REMOTE">Remote</option>
-              <option value="HYBRID">Hybrid</option>
-            </select>
-          </div>
+          <select
+            name="type"
+            value={formData.type}
+            onChange={handleChange}
+            className="border rounded-lg p-3"
+          >
+            <option value="ONSITE">Onsite</option>
+            <option value="REMOTE">Remote</option>
+            <option value="HYBRID">Hybrid</option>
+          </select>
 
-          {/* APPLIED DATE */}
-          <div>
-            <label className="block mb-2 font-medium">Applied Date</label>
-            <input
-              type="date"
-              name="appliedDate"
-              value={formData.appliedDate}
-              onChange={handleChange}
-              className="w-full border rounded-lg p-3"
-            />
-          </div>
+          <input
+            type="date"
+            name="appliedDate"
+            value={formData.appliedDate}
+            onChange={handleChange}
+            className="border rounded-lg p-3"
+          />
 
-          {/* INTERVIEW DATE */}
-          <div>
-            <label className="block mb-2 font-medium">Interview Date</label>
-            <input
-              type="date"
-              name="interviewDate"
-              value={formData.interviewDate || ""}
-              onChange={handleChange}
-              className="w-full border rounded-lg p-3"
-            />
-          </div>
+          <input
+            type="date"
+            name="interviewDate"
+            value={formData.interviewDate || ""}
+            onChange={handleChange}
+            className="border rounded-lg p-3"
+          />
 
-          {/* NOTES */}
-          <div className="md:col-span-2">
-            <label className="block mb-2 font-medium">Notes</label>
-            <textarea
-              name="notes"
-              value={formData.notes}
-              onChange={handleChange}
-              rows="5"
-              className="w-full border rounded-lg p-3"
-            />
-          </div>
+          <textarea
+            name="notes"
+            value={formData.notes}
+            onChange={handleChange}
+            rows="5"
+            className="border rounded-lg p-3 md:col-span-2"
+          />
 
-          {/* SUBMIT */}
-          <div className="md:col-span-2">
-            <button
-              type="submit"
-              className="bg-blue-500 hover:bg-blue-600 text-white px-8 py-3 rounded-lg"
-            >
-              Add Job
-            </button>
-          </div>
-
+          <button
+            type="submit"
+            className="bg-blue-500 text-white px-6 py-3 rounded-lg md:col-span-2"
+          >
+            Add Job
+          </button>
         </form>
       </div>
     </div>
