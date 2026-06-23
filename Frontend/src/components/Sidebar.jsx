@@ -8,11 +8,12 @@ import {
   FaSignOutAlt,
 } from "react-icons/fa";
 
-import { getUser, logout } from "../features/auth/authService";
+import { useAuth } from "../context/AuthContext";
+import logo from "../assets/logo.png";
 
 const Sidebar = () => {
   const navigate = useNavigate();
-  const user = getUser();
+  const { user, logout } = useAuth();
 
   const [showLogoutModal, setShowLogoutModal] = useState(false);
 
@@ -38,9 +39,13 @@ const Sidebar = () => {
         <div>
 
           {/* LOGO */}
-          <h2 className="text-2xl font-bold text-blue-600 mb-8">
-            Job Tracker
-          </h2>
+          <div className="mb-8 px-1">
+            <img
+              src={logo}
+              alt="JobTracker"
+              className="w-full h-auto object-contain"
+            />
+          </div>
 
           {/* USER INFO */}
           <div className="mb-8 p-4 bg-gray-100 rounded-xl">

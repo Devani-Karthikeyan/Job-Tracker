@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import api from "../../api/axiosConfig";
+import { useAuth } from "../../context/AuthContext";
+import { useJobs } from "../../context/JobContext";
 
 function Login() {
 
@@ -8,6 +10,8 @@ function Login() {
   const [password, setPassword] = useState("");
 
   const navigate = useNavigate();
+  const { login } = useAuth();
+  const { refreshJobs } = useJobs();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -18,8 +22,6 @@ function Login() {
         email,
         password,
       });
-
-      console.log(response.data);
 
       const data = response.data;
 
@@ -44,18 +46,14 @@ function Login() {
         }
       */
 
-      // SAVE TOKEN IF EXISTS
-      if (data.token) {
-        localStorage.setItem("token", data.token);
-      }
-
-      // SAVE USER SAFELY
+      const token = data.token || null;
       const userData = data.user ? data.user : data;
 
-      localStorage.setItem(
-        "user",
-        JSON.stringify(userData)
-      );
+      // ✅ Updates AuthContext → Navbar re-renders immediately (no refresh)
+      login(userData, token);
+
+      // ✅ Pre-fetch jobs → Dashboard shows data immediately (no refresh)
+      refreshJobs();
 
       navigate("/dashboard");
 
@@ -113,7 +111,7 @@ function Login() {
 
         {/* REGISTER */}
         <p className="text-sm mt-4 text-center">
-          Don’t have an account?{" "}
+          Don't have an account?{" "}
           <Link
             to="/register"
             className="text-blue-500 hover:underline"
