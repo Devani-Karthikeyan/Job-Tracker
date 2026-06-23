@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { FaSearch, FaUserCircle, FaBell } from "react-icons/fa";
+import { FaSearch, FaBell } from "react-icons/fa";
 import axios from "axios";
 import { useAuth } from "../context/AuthContext";
 
