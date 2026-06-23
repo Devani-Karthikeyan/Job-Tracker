@@ -1,8 +1,9 @@
 package com.backend.job_tracker.service;
 
 import com.backend.job_tracker.dto.request.JobRequestDTO;
+import com.backend.job_tracker.dto.request.JobSearchRequest;
 import com.backend.job_tracker.dto.response.JobResponseDTO;
-import com.backend.job_tracker.model.Job;
+import org.springframework.data.domain.Page;
 
 import java.util.List;
 
@@ -18,5 +19,5 @@ public interface JobService {
 
     String deleteJob(Long jobId);
 
-    List<Job> searchJobs(String keyword, String email);
+    Page<JobResponseDTO> getJobs(String email, JobSearchRequest searchRequest);
 }
