@@ -7,8 +7,11 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Data
 @NoArgsConstructor
@@ -25,20 +28,36 @@ public class Job {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    private String title;
+    @Column(name = "title")
+    private String jobTitle;
 
-    private String company;
+    @Column(name = "company")
+    private String companyName;
+
+    private String location;
 
     @Enumerated(EnumType.STRING)
+    @Column(name = "status")
     private JobStatus status;
 
     @Enumerated(EnumType.STRING)
-    private JobType type;
+    @Column(name = "type")
+    private JobType jobType;
 
-    private LocalDate appliedDate;
+    private Integer salary;
+
+    @Column(name = "applied_date")
+    private LocalDate applicationDate;
 
     private LocalDate interviewDate;
 
     private String notes;
 
+    @CreationTimestamp
+    @Column(name = "created_at", updatable = false)
+    private LocalDateTime createdAt;
+
+    @UpdateTimestamp
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt;
 }

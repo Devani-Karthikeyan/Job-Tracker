@@ -1,32 +1,15 @@
-import { useEffect, useState } from "react";
-import api from "../api/axiosConfig";
+import { useJobs } from "../context/JobContext";
 
 const Dashboard = () => {
-  const [jobs, setJobs] = useState([]);
-
-  useEffect(() => {
-    loadJobs();
-  }, []);
-
-  const loadJobs = async () => {
-    try {
-      const res = await api.get("/jobs");
-      setJobs(res.data);
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
+  const { allJobs: jobs, loading } = useJobs();
 
   const totalJobs = jobs.length;
-
-  const appliedJobs = jobs.filter(job => job.status === "APPLIED").length;
-
+  const appliedJobs   = jobs.filter(job => job.status === "APPLIED").length;
   const interviewJobs = jobs.filter(job => job.status === "INTERVIEW").length;
-
-  const rejectedJobs = jobs.filter(job => job.status === "REJECTED").length;
-
-  const acceptedJobs = jobs.filter(job => job.status === "ACCEPTED").length;
+  const rejectedJobs  = jobs.filter(job => job.status === "REJECTED").length;
+  const acceptedJobs  = jobs.filter(
+    job => job.status === "OFFER" || job.status === "ACCEPTED" || job.status === "OFFERED"
+  ).length;
 
   return (
     <div className="min-h-screen bg-gray-50 p-6">
@@ -44,15 +27,11 @@ const Dashboard = () => {
       {/* STATS CARDS */}
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-5 gap-6 mb-10">
 
-        <StatCard label="Total Jobs" value={totalJobs} color="text-slate-800" />
-
-        <StatCard label="Applied" value={appliedJobs} color="text-blue-600" />
-
-        <StatCard label="Interview" value={interviewJobs} color="text-amber-500" />
-
-        <StatCard label="Rejected" value={rejectedJobs} color="text-red-600" />
-
-        <StatCard label="Accepted" value={acceptedJobs} color="text-emerald-600" />
+        <StatCard label="Total Jobs"  value={loading ? "…" : totalJobs}     color="text-slate-800" />
+        <StatCard label="Applied"     value={loading ? "…" : appliedJobs}   color="text-blue-600" />
+        <StatCard label="Interview"   value={loading ? "…" : interviewJobs} color="text-amber-500" />
+        <StatCard label="Rejected"    value={loading ? "…" : rejectedJobs}  color="text-red-600" />
+        <StatCard label="Accepted"    value={loading ? "…" : acceptedJobs}  color="text-emerald-600" />
 
       </div>
 
@@ -81,24 +60,31 @@ const Dashboard = () => {
             </thead>
 
             <tbody>
-              {jobs.length > 0 ? (
+              {loading ? (
+                <tr>
+                  <td colSpan="3" className="text-center p-10 text-gray-400">
+                    Loading…
+                  </td>
+                </tr>
+              ) : jobs.length > 0 ? (
                 jobs.slice(0, 5).map(job => (
                   <tr key={job.id} className="border-b hover:bg-gray-50 transition">
 
                     <td className="p-4 font-medium text-slate-800">
-                      {job.company}
+                      {job.companyName}
                     </td>
 
                     <td className="p-4 text-gray-700">
-                      {job.title}
+                      {job.jobTitle}
                     </td>
 
                     <td className="p-4">
                       <span className={`px-3 py-1 rounded-full text-sm font-medium
-                        ${job.status === "APPLIED" ? "bg-blue-100 text-blue-700" : ""}
+                        ${job.status === "APPLIED"   ? "bg-blue-100 text-blue-700"   : ""}
                         ${job.status === "INTERVIEW" ? "bg-yellow-100 text-yellow-700" : ""}
-                        ${job.status === "REJECTED" ? "bg-red-100 text-red-700" : ""}
-                        ${job.status === "ACCEPTED" ? "bg-green-100 text-green-700" : ""}
+                        ${job.status === "REJECTED"  ? "bg-red-100 text-red-700"     : ""}
+                        ${job.status === "OFFER" || job.status === "ACCEPTED" || job.status === "OFFERED"
+                          ? "bg-green-100 text-green-700" : ""}
                       `}>
                         {job.status}
                       </span>

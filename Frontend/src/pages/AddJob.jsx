@@ -2,17 +2,21 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../api/axiosConfig";
 import { getUser } from "../features/auth/authService";
+import { useJobs } from "../context/JobContext";
 
 const AddJob = () => {
   const navigate = useNavigate();
+  const { refreshJobs } = useJobs();
 
   const [formData, setFormData] = useState({
-    title: "",
-    company: "",
+    jobTitle: "",
+    companyName: "",
+    location: "",
     status: "APPLIED",
-    type: "ONSITE",
-    appliedDate: "",
-    interviewDate: null,
+    jobType: "FULL_TIME",
+    salary: "",
+    applicationDate: "",
+    interviewDate: "",
     notes: "",
   });
 
@@ -32,11 +36,15 @@ const AddJob = () => {
       const jobData = {
         ...formData,
         userId: user?.id, 
-        appliedDate: formData.appliedDate || null,
+        salary: formData.salary ? parseInt(formData.salary, 10) : null,
+        applicationDate: formData.applicationDate || null,
         interviewDate: formData.interviewDate || null,
       };
 
       await api.post("/jobs/create", jobData);
+
+      // Update global context so Dashboard stats are instantly current
+      refreshJobs();
 
       alert("Job Added Successfully");
       navigate("/dashboard");
@@ -55,74 +63,126 @@ const AddJob = () => {
 
         <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-6">
 
-          <input
-            type="text"
-            name="title"
-            value={formData.title}
-            onChange={handleChange}
-            placeholder="Job Title"
-            className="border rounded-lg p-3"
-          />
+          <div>
+            <label className="block text-sm font-semibold text-gray-600 mb-1">Job Title</label>
+            <input
+              type="text"
+              name="jobTitle"
+              value={formData.jobTitle}
+              onChange={handleChange}
+              placeholder="e.g. Software Engineer"
+              className="border rounded-lg p-3 w-full"
+              required
+            />
+          </div>
 
-          <input
-            type="text"
-            name="company"
-            value={formData.company}
-            onChange={handleChange}
-            placeholder="Company"
-            className="border rounded-lg p-3"
-          />
+          <div>
+            <label className="block text-sm font-semibold text-gray-600 mb-1">Company</label>
+            <input
+              type="text"
+              name="companyName"
+              value={formData.companyName}
+              onChange={handleChange}
+              placeholder="e.g. Google"
+              className="border rounded-lg p-3 w-full"
+              required
+            />
+          </div>
 
-          <select
-            name="status"
-            value={formData.status}
-            onChange={handleChange}
-            className="border rounded-lg p-3"
-          >
-            <option value="APPLIED">Applied</option>
-            <option value="INTERVIEW">Interview</option>
-            <option value="REJECTED">Rejected</option>
-            <option value="ACCEPTED">Accepted</option>
-          </select>
+          <div>
+            <label className="block text-sm font-semibold text-gray-600 mb-1">Location</label>
+            <input
+              type="text"
+              name="location"
+              value={formData.location}
+              onChange={handleChange}
+              placeholder="e.g. Mountain View, CA / Remote"
+              className="border rounded-lg p-3 w-full"
+            />
+          </div>
 
-          <select
-            name="type"
-            value={formData.type}
-            onChange={handleChange}
-            className="border rounded-lg p-3"
-          >
-            <option value="ONSITE">Onsite</option>
-            <option value="REMOTE">Remote</option>
-            <option value="HYBRID">Hybrid</option>
-          </select>
+          <div>
+            <label className="block text-sm font-semibold text-gray-600 mb-1">Salary ($/yr)</label>
+            <input
+              type="number"
+              name="salary"
+              value={formData.salary}
+              onChange={handleChange}
+              placeholder="e.g. 120000"
+              className="border rounded-lg p-3 w-full"
+            />
+          </div>
 
-          <input
-            type="date"
-            name="appliedDate"
-            value={formData.appliedDate}
-            onChange={handleChange}
-            className="border rounded-lg p-3"
-          />
+          <div>
+            <label className="block text-sm font-semibold text-gray-600 mb-1">Status</label>
+            <select
+              name="status"
+              value={formData.status}
+              onChange={handleChange}
+              className="border rounded-lg p-3 w-full"
+            >
+              <option value="APPLIED">Applied</option>
+              <option value="INTERVIEW">Interview</option>
+              <option value="OFFER">Offer</option>
+              <option value="REJECTED">Rejected</option>
+              <option value="SAVED">Saved</option>
+            </select>
+          </div>
 
-          <input
-            type="date"
-            name="interviewDate"
-            value={formData.interviewDate || ""}
-            onChange={handleChange}
-            className="border rounded-lg p-3"
-          />
+          <div>
+            <label className="block text-sm font-semibold text-gray-600 mb-1">Job Type</label>
+            <select
+              name="jobType"
+              value={formData.jobType}
+              onChange={handleChange}
+              className="border rounded-lg p-3 w-full"
+            >
+              <option value="FULL_TIME">Full-Time</option>
+              <option value="PART_TIME">Part-Time</option>
+              <option value="INTERNSHIP">Internship</option>
+              <option value="CONTRACT">Contract</option>
+              <option value="REMOTE">Remote</option>
+            </select>
+          </div>
 
-          <textarea
-            name="notes"
-            value={formData.notes}
-            onChange={handleChange}
-            rows="5"
-            className="border rounded-lg p-3 md:col-span-2"
-          />
+          <div>
+            <label className="block text-sm font-semibold text-gray-600 mb-1">Application Date</label>
+            <input
+              type="date"
+              name="applicationDate"
+              value={formData.applicationDate}
+              onChange={handleChange}
+              className="border rounded-lg p-3 w-full"
+              required
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-semibold text-gray-600 mb-1">Interview Date</label>
+            <input
+              type="date"
+              name="interviewDate"
+              value={formData.interviewDate || ""}
+              onChange={handleChange}
+              className="border rounded-lg p-3 w-full"
+            />
+          </div>
+
+          <div className="md:col-span-2">
+            <label className="block text-sm font-semibold text-gray-600 mb-1">Notes</label>
+            <textarea
+              name="notes"
+              value={formData.notes}
+              onChange={handleChange}
+              rows="4"
+              placeholder="Add key details, interview prep, contacts, etc."
+              className="border rounded-lg p-3 w-full"
+            />
+          </div>
 
           <button
             type="submit"
-            className="bg-blue-500 text-white px-6 py-3 rounded-lg md:col-span-2"
+            className="bg-blue-600 hover:bg-blue-700 text-white font-medium px-6 py-3 rounded-lg md:col-span-2 transition"
           >
             Add Job
           </button>

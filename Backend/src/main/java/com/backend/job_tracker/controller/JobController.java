@@ -1,15 +1,14 @@
 package com.backend.job_tracker.controller;
 
 import com.backend.job_tracker.dto.request.JobRequestDTO;
+import com.backend.job_tracker.dto.request.JobSearchRequest;
 import com.backend.job_tracker.dto.response.JobResponseDTO;
-import com.backend.job_tracker.model.Job;
 import com.backend.job_tracker.service.JobService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/jobs")
@@ -27,11 +26,12 @@ public class JobController {
     }
 
     @GetMapping
-    public List<JobResponseDTO> getJobs(Authentication authentication) {
-
+    public ResponseEntity<Page<JobResponseDTO>> getJobs(
+            JobSearchRequest jobSearchRequest,
+            Authentication authentication
+    ) {
         String email = authentication.getName();
-
-        return jobService.getJobsByUser(email);
+        return ResponseEntity.ok(jobService.getJobs(email, jobSearchRequest));
     }
 
     @GetMapping("/{jobId}")
@@ -49,18 +49,5 @@ public class JobController {
     @DeleteMapping("/{jobId}")
     public String deleteJob(@PathVariable Long jobId) {
         return jobService.deleteJob(jobId);
-    }
-
-    @GetMapping("/search")
-    public ResponseEntity<List<Job>> searchJobs(
-            @RequestParam String keyword,
-            Authentication authentication
-    ) {
-
-        String email = authentication.getName();
-
-        return ResponseEntity.ok(
-                jobService.searchJobs(keyword, email)
-        );
     }
 }
