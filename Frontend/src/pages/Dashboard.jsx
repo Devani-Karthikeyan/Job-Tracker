@@ -1,120 +1,90 @@
+import { useState } from "react";
 import { useJobs } from "../context/JobContext";
+import RecentlyViewedJobs from "../components/dashboard/RecentlyViewedJobs.jsx";
+import YourApplicationWidgets from "../components/dashboard/YourApplicationWidgets.jsx";
+import ApplicationHistoryChart from "../components/dashboard/ApplicationHistoryChart.jsx";
+import RemindersAndActivity from "../components/dashboard/RemindersAndActivity.jsx";
+import KanbanBoard from "../components/dashboard/KanbanBoard.jsx";
 
 const Dashboard = () => {
-  const { allJobs: jobs, loading } = useJobs();
+  const { allJobs } = useJobs();
+  const [activeTab, setActiveTab] = useState("overview"); // overview or kanban
 
-  const totalJobs = jobs.length;
-  const appliedJobs   = jobs.filter(job => job.status === "APPLIED").length;
-  const interviewJobs = jobs.filter(job => job.status === "INTERVIEW").length;
-  const rejectedJobs  = jobs.filter(job => job.status === "REJECTED").length;
-  const acceptedJobs  = jobs.filter(
-    job => job.status === "OFFER" || job.status === "ACCEPTED" || job.status === "OFFERED"
-  ).length;
+  const getCurrentDateString = () => {
+    const options = { weekday: "long", year: "numeric", month: "long", day: "numeric" };
+    return new Date().toLocaleDateString(undefined, options);
+  };
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
-
-      {/* HEADER */}
-      <div className="mb-8">
-        <h1 className="text-4xl font-bold text-slate-800">
-          Dashboard
-        </h1>
-        <p className="text-gray-500 mt-2">
-          Track and manage your job applications
-        </p>
+    <div className="max-w-[1600px] mx-auto space-y-6">
+      {/* TABS SELECTOR */}
+      <div className="flex border-b border-gray-200 gap-6 mb-6">
+        <button
+          onClick={() => setActiveTab("overview")}
+          className={`pb-3 font-semibold text-base transition-all relative ${
+            activeTab === "overview" ? "text-blue-600" : "text-gray-500 hover:text-gray-700"
+          }`}
+        >
+          My Dashboard
+          {activeTab === "overview" && (
+            <span className="absolute bottom-0 left-0 w-full h-0.5 bg-blue-600 rounded-full" />
+          )}
+        </button>
+        <button
+          onClick={() => setActiveTab("kanban")}
+          className={`pb-3 font-semibold text-base transition-all relative ${
+            activeTab === "kanban" ? "text-blue-600" : "text-gray-500 hover:text-gray-700"
+          }`}
+        >
+          Job Pipeline (Kanban)
+          {activeTab === "kanban" && (
+            <span className="absolute bottom-0 left-0 w-full h-0.5 bg-blue-600 rounded-full" />
+          )}
+        </button>
       </div>
 
-      {/* STATS CARDS */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-5 gap-6 mb-10">
+      {activeTab === "overview" ? (
+        <div className="grid grid-cols-1 xl:grid-cols-10 gap-3 items-start">
+          {/* MAIN LEFT COLUMN */}
+          <div className="xl:col-span-7 space-y-3">
+            {/* WELCOME / RECENTLY VIEWED HEADER CARD */}
+            <div className="bg-white border border-gray-200 rounded-3xl p-6 shadow-sm hover:shadow-md transition-all duration-300">
+              <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4">
+                <div>
+                  <h2 className="text-2xl font-semibold text-gray-800 tracking-tight">Job Applications Dashboard</h2>
+                  <p className="text-sm text-gray-500 font-semibold mt-0.5">Track and Status Overview</p>
+                </div>
+                {/* DATE BADGE */}
+                <div className="self-start sm:self-auto">
+                  <span className="inline-flex items-center gap-2 text-xs font-semibold text-gray-500 bg-gray-50 border border-gray-100 px-3.5 py-2 rounded-xl shadow-sm">
+                    <svg className="w-3.5 h-3.5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                    {getCurrentDateString()}
+                  </span>
+                </div>
+              </div>
+              <RecentlyViewedJobs jobs={allJobs} />
+            </div>
 
-        <StatCard label="Total Jobs"  value={loading ? "…" : totalJobs}     color="text-slate-800" />
-        <StatCard label="Applied"     value={loading ? "…" : appliedJobs}   color="text-blue-600" />
-        <StatCard label="Interview"   value={loading ? "…" : interviewJobs} color="text-amber-500" />
-        <StatCard label="Rejected"    value={loading ? "…" : rejectedJobs}  color="text-red-600" />
-        <StatCard label="Accepted"    value={loading ? "…" : acceptedJobs}  color="text-emerald-600" />
+            {/* WIDGETS & CHART GRID */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <YourApplicationWidgets jobs={allJobs} />
+              <ApplicationHistoryChart jobs={allJobs} />
+            </div>
+          </div>
 
-      </div>
-
-      {/* RECENT JOBS */}
-      <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
-
-        <div className="p-6 border-b border-gray-200">
-          <h2 className="text-2xl font-bold text-slate-800">
-            Recent Applications
-          </h2>
-          <p className="text-gray-500 mt-1">
-            Your latest job activities
-          </p>
+          {/* RIGHT SIDE PANEL */}
+          <div className="xl:col-span-3">
+            <RemindersAndActivity jobs={allJobs} />
+          </div>
         </div>
-
-        <div className="overflow-x-auto">
-
-          <table className="w-full">
-
-            <thead>
-              <tr className="bg-gray-50 border-b">
-                <th className="p-4 text-left text-sm font-semibold text-gray-600">Company</th>
-                <th className="p-4 text-left text-sm font-semibold text-gray-600">Role</th>
-                <th className="p-4 text-left text-sm font-semibold text-gray-600">Status</th>
-              </tr>
-            </thead>
-
-            <tbody>
-              {loading ? (
-                <tr>
-                  <td colSpan="3" className="text-center p-10 text-gray-400">
-                    Loading…
-                  </td>
-                </tr>
-              ) : jobs.length > 0 ? (
-                jobs.slice(0, 5).map(job => (
-                  <tr key={job.id} className="border-b hover:bg-gray-50 transition">
-
-                    <td className="p-4 font-medium text-slate-800">
-                      {job.companyName}
-                    </td>
-
-                    <td className="p-4 text-gray-700">
-                      {job.jobTitle}
-                    </td>
-
-                    <td className="p-4">
-                      <span className={`px-3 py-1 rounded-full text-sm font-medium
-                        ${job.status === "APPLIED"   ? "bg-blue-100 text-blue-700"   : ""}
-                        ${job.status === "INTERVIEW" ? "bg-yellow-100 text-yellow-700" : ""}
-                        ${job.status === "REJECTED"  ? "bg-red-100 text-red-700"     : ""}
-                        ${job.status === "OFFER" || job.status === "ACCEPTED" || job.status === "OFFERED"
-                          ? "bg-green-100 text-green-700" : ""}
-                      `}>
-                        {job.status}
-                      </span>
-                    </td>
-
-                  </tr>
-                ))
-              ) : (
-                <tr>
-                  <td colSpan="3" className="text-center p-10 text-gray-500">
-                    No recent jobs found
-                  </td>
-                </tr>
-              )}
-            </tbody>
-
-          </table>
-
-        </div>
-      </div>
+      ) : (
+        /* KANBAN PIPELINE BOARD */
+        <KanbanBoard />
+      )}
     </div>
   );
 };
-
-/* Small reusable component */
-const StatCard = ({ label, value, color }) => (
-  <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm hover:shadow-md transition">
-    <p className="text-gray-500 text-sm font-medium">{label}</p>
-    <h2 className={`text-4xl font-bold mt-3 ${color}`}>{value}</h2>
-  </div>
-);
 
 export default Dashboard;

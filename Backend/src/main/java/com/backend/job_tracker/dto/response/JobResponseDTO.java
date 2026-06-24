@@ -18,6 +18,7 @@ public class JobResponseDTO {
     private Integer salary;
     private LocalDate applicationDate;
     private LocalDate interviewDate;
+    private LocalDate reminderDate;
     private String notes;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;

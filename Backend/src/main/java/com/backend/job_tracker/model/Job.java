@@ -51,6 +51,8 @@ public class Job {
 
     private LocalDate interviewDate;
 
+    private LocalDate reminderDate;
+
     private String notes;
 
     @CreationTimestamp

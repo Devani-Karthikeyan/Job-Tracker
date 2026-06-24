@@ -42,6 +42,7 @@ public class JobServiceImpl implements JobService {
         job.setSalary(jobRequestDTO.getSalary());
         job.setApplicationDate(jobRequestDTO.getApplicationDate());
         job.setInterviewDate(jobRequestDTO.getInterviewDate());
+        job.setReminderDate(jobRequestDTO.getReminderDate());
         job.setNotes(jobRequestDTO.getNotes());
         job.setUser(user);
 
@@ -60,6 +61,7 @@ public class JobServiceImpl implements JobService {
         responseDTO.setSalary(job.getSalary());
         responseDTO.setApplicationDate(job.getApplicationDate());
         responseDTO.setInterviewDate(job.getInterviewDate());
+        responseDTO.setReminderDate(job.getReminderDate());
         responseDTO.setNotes(job.getNotes());
         responseDTO.setCreatedAt(job.getCreatedAt());
         responseDTO.setUpdatedAt(job.getUpdatedAt());
@@ -98,6 +100,7 @@ public class JobServiceImpl implements JobService {
         job.setSalary(jobRequestDTO.getSalary());
         job.setApplicationDate(jobRequestDTO.getApplicationDate());
         job.setInterviewDate(jobRequestDTO.getInterviewDate());
+        job.setReminderDate(jobRequestDTO.getReminderDate());
         job.setNotes(jobRequestDTO.getNotes());
 
         Job updateJob = jobRepository.save(job);

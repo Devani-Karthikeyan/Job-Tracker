@@ -17,6 +17,7 @@ const AddJob = () => {
     salary: "",
     applicationDate: "",
     interviewDate: "",
+    reminderDate: "",
     notes: "",
   });
 
@@ -39,6 +40,7 @@ const AddJob = () => {
         salary: formData.salary ? parseInt(formData.salary, 10) : null,
         applicationDate: formData.applicationDate || null,
         interviewDate: formData.interviewDate || null,
+        reminderDate: formData.reminderDate || null,
       };
 
       await api.post("/jobs/create", jobData);
@@ -166,6 +168,18 @@ const AddJob = () => {
               onChange={handleChange}
               className="border rounded-lg p-3 w-full"
             />
+          </div>
+
+          <div>
+            <label className="block text-sm font-semibold text-gray-600 mb-1">Reminder Date <span className="text-gray-400 font-normal text-xs">(optional)</span></label>
+            <input
+              type="date"
+              name="reminderDate"
+              value={formData.reminderDate || ""}
+              onChange={handleChange}
+              className="border rounded-lg p-3 w-full"
+            />
+            <p className="text-xs text-gray-400 mt-1">Get a notification on this date to prepare for the interview.</p>
           </div>
 
           <div className="md:col-span-2">
