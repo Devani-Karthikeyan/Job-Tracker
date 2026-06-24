@@ -1,11 +1,12 @@
 import React, { useEffect, useState, useCallback } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import api from "../api/axiosConfig";
 import JobFilterPanel from "../components/JobFilterPanel";
 import { useJobs } from "../context/JobContext";
 
 const Jobs = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { refreshJobs } = useJobs();
 
   const [jobs, setJobs] = useState([]);
@@ -14,14 +15,25 @@ const Jobs = () => {
   const [showModal, setShowModal] = useState(false);
   const [selectedJobId, setSelectedJobId] = useState(null);
 
+  const urlStatus = searchParams.get("status") || "";
+
   const [filters, setFilters] = useState({
-    status: "",
+    status: urlStatus,
     jobType: "",
     sortBy: "applicationDate",
     sortDirection: "desc",
     page: 0,
     size: 10,
   });
+
+  // Keep filters.status synced when searchParams change (navigation between different dashboard clicks)
+  useEffect(() => {
+    setFilters((prev) => ({
+      ...prev,
+      status: searchParams.get("status") || "",
+      page: 0,
+    }));
+  }, [searchParams]);
 
   const loadJobs = useCallback(async () => {
     try {

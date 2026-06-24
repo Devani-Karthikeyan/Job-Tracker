@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { FaSearch, FaBell } from "react-icons/fa";
 import axios from "axios";
 import { useAuth } from "../context/AuthContext";
+import { useJobs } from "../context/JobContext";
 
 /* Map route paths to readable page titles */
 const PAGE_TITLES = {
@@ -16,18 +17,25 @@ const Navbar = () => {
   const navigate         = useNavigate();
   const location         = useLocation();
   const dropdownRef      = useRef(null);
+  const bellRef          = useRef(null);
 
-  const [showProfile, setShowProfile] = useState(false);
-  const [search,      setSearch]      = useState("");
-  const [results,     setResults]     = useState([]);
+  const [showProfile,  setShowProfile]  = useState(false);
+  const [showBell,     setShowBell]     = useState(false);
+  const [search,       setSearch]       = useState("");
+  const [results,      setResults]      = useState([]);
+
+  const { notifications = [], dismissNotification } = useJobs();
 
   const pageTitle = PAGE_TITLES[location.pathname] ?? "";
 
-  /* Close dropdown when clicking outside */
+  /* Close dropdowns when clicking outside */
   useEffect(() => {
     const handler = (e) => {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
         setShowProfile(false);
+      }
+      if (bellRef.current && !bellRef.current.contains(e.target)) {
+        setShowBell(false);
       }
     };
     document.addEventListener("mousedown", handler);
@@ -67,6 +75,8 @@ const Navbar = () => {
   const initials = user?.name
     ? user.name.split(" ").map((w) => w[0]).join("").toUpperCase().slice(0, 2)
     : "?";
+
+  const notifCount = notifications.length;
 
   return (
     <header className="h-16 bg-white border-b border-gray-200 shadow-sm flex items-center px-6 gap-4">
@@ -125,24 +135,109 @@ const Navbar = () => {
       {!user && <div className="flex-1" />}
 
       {/* RIGHT ACTIONS */}
-      <div className="flex items-center gap-3 shrink-0 ml-auto" ref={dropdownRef}>
+      <div className="flex items-center gap-3 shrink-0 ml-auto">
 
         {!user ? (
-          /* Public links */
           <>
             <button onClick={() => navigate("/login")} className="text-sm font-medium text-blue-600 hover:underline">Login</button>
             <button onClick={() => navigate("/register")} className="text-sm px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-medium">Sign Up</button>
           </>
         ) : (
-          /* Authenticated */
           <>
-            {/* Bell icon */}
-            <button className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-gray-100 transition text-gray-500">
-              <FaBell className="text-base" />
-            </button>
+            {/* NOTIFICATION BELL */}
+            <div className="relative" ref={bellRef}>
+              <button
+                onClick={() => setShowBell((p) => !p)}
+                className="relative w-9 h-9 flex items-center justify-center rounded-full hover:bg-gray-100 transition text-gray-500"
+                aria-label="Notifications"
+              >
+                <FaBell className="text-base" />
+                {notifCount > 0 && (
+                  <span className="absolute -top-0.5 -right-0.5 min-w-[17px] h-[17px] bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center px-1 shadow-sm animate-pulse">
+                    {notifCount}
+                  </span>
+                )}
+              </button>
 
-            {/* Avatar button */}
-            <div className="relative">
+              {/* NOTIFICATION DROPDOWN */}
+              {showBell && (
+                <div className="absolute right-0 top-[calc(100%+10px)] w-80 bg-white border border-gray-200 rounded-2xl shadow-2xl z-50 overflow-hidden">
+                  {/* Header */}
+                  <div className="flex items-center justify-between px-4 py-3.5 border-b border-gray-100 bg-gray-50/70">
+                    <h3 className="text-sm font-bold text-slate-800">Notifications</h3>
+                    {notifCount > 0 && (
+                      <span className="text-xs font-semibold bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">
+                        {notifCount} active
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Notification items */}
+                  <div className="max-h-80 overflow-y-auto divide-y divide-gray-50">
+                    {notifications.length === 0 ? (
+                      <div className="flex flex-col items-center justify-center py-10 text-gray-400 gap-2">
+                        <FaBell className="text-2xl opacity-30" />
+                        <p className="text-xs font-semibold">No notifications right now</p>
+                        <p className="text-[11px] text-gray-400">Reminders will appear here on the day</p>
+                      </div>
+                    ) : (
+                      notifications.map((n) => (
+                        <div
+                          key={n.id}
+                          className={`flex items-start gap-3 px-4 py-3.5 hover:bg-gray-50 transition cursor-pointer ${n.type === "interview_alert" ? "bg-red-50/40" : ""}`}
+                          onClick={() => {
+                            setShowBell(false);
+                            navigate(`/edit-job/${n.jobId}`);
+                          }}
+                        >
+                          {/* Icon bubble */}
+                          <div className={`mt-0.5 shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-sm ${n.type === "interview_alert" ? "bg-red-100" : "bg-blue-100"}`}>
+                            {n.type === "interview_alert" ? "🚨" : n.message.startsWith("📅") ? "📅" : "🔔"}
+                          </div>
+
+                          {/* Content */}
+                          <div className="flex-1 min-w-0">
+                            <p className={`text-xs font-bold leading-snug ${n.type === "interview_alert" ? "text-red-700" : "text-slate-800"}`}>
+                              {n.message}
+                            </p>
+                            <p className="text-[11px] text-gray-500 mt-0.5 leading-snug">{n.sub}</p>
+                            {!n.dismissible && (
+                              <span className="inline-block mt-1 text-[10px] font-semibold text-red-600 bg-red-50 border border-red-200 px-1.5 py-0.5 rounded-full">
+                                Persistent · Cannot dismiss
+                              </span>
+                            )}
+                          </div>
+
+                          {/* Dismiss button */}
+                          {n.dismissible && (
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                dismissNotification(n.id);
+                              }}
+                              className="shrink-0 text-gray-300 hover:text-gray-500 transition text-base leading-none mt-0.5"
+                              title="Dismiss"
+                            >
+                              ✕
+                            </button>
+                          )}
+                        </div>
+                      ))
+                    )}
+                  </div>
+
+                  {/* Footer hint */}
+                  <div className="px-4 py-2.5 border-t border-gray-100 bg-gray-50/50 text-center">
+                    <p className="text-[11px] text-gray-400 font-medium">
+                      {notifCount > 0 ? "Interview-day alerts cannot be dismissed" : "Set reminder dates on jobs to receive alerts here"}
+                    </p>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Avatar / Profile */}
+            <div className="relative" ref={dropdownRef}>
               <button
                 onClick={() => setShowProfile((p) => !p)}
                 className="flex items-center gap-2 px-3 py-1.5 rounded-xl hover:bg-gray-100 transition"
@@ -159,7 +254,6 @@ const Navbar = () => {
               {/* PROFILE DROPDOWN */}
               {showProfile && (
                 <div className="absolute right-0 top-[calc(100%+8px)] w-64 bg-white border border-gray-200 rounded-2xl shadow-xl z-50 overflow-hidden">
-                  {/* User info header */}
                   <div className="flex items-center gap-3 px-4 py-4 border-b border-gray-100 bg-gray-50">
                     <div className="w-10 h-10 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold text-sm shrink-0">
                       {initials}
@@ -169,8 +263,6 @@ const Navbar = () => {
                       <p className="text-xs text-gray-500 truncate">{user.email}</p>
                     </div>
                   </div>
-
-                  {/* Logout */}
                   <div className="p-2">
                     <button
                       onClick={handleLogout}
