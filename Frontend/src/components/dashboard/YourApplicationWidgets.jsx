@@ -7,6 +7,7 @@ const YourApplicationWidgets = ({ jobs = [] }) => {
   const interviews = jobs.filter((j) => j.status === "INTERVIEW").length;
   const offers = jobs.filter((j) => j.status === "OFFER" || j.status === "ACCEPTED" || j.status === "OFFERED").length;
   const rejected = jobs.filter((j) => j.status === "REJECTED").length;
+  const highPriority = jobs.filter((j) => j.priorityLevel === "HIGH").length;
 
   const stats = [
     {

@@ -7,8 +7,11 @@ import com.backend.job_tracker.model.Job;
 import com.backend.job_tracker.model.User;
 import com.backend.job_tracker.repository.JobRepository;
 import com.backend.job_tracker.repository.JobSpecification;
+import com.backend.job_tracker.repository.UserPreferenceRepository;
 import com.backend.job_tracker.repository.UserRepository;
 import com.backend.job_tracker.service.JobService;
+import com.backend.job_tracker.service.priority.PriorityCalculatorService;
+import com.backend.job_tracker.model.UserPreference;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -28,6 +31,12 @@ public class JobServiceImpl implements JobService {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private UserPreferenceRepository userPreferenceRepository;
+
+    @Autowired
+    private PriorityCalculatorService priorityCalculatorService;
+
     @Override
     public JobResponseDTO addJob(String email, JobRequestDTO jobRequestDTO) {
         User user = userRepository.findByEmail(email)
@@ -45,6 +54,9 @@ public class JobServiceImpl implements JobService {
         job.setReminderDate(jobRequestDTO.getReminderDate());
         job.setNotes(jobRequestDTO.getNotes());
         job.setUser(user);
+
+        UserPreference pref = userPreferenceRepository.findByUserId(user.getId()).orElse(null);
+        priorityCalculatorService.calculateAndSetPriority(job, pref);
 
         Job savedJob = jobRepository.save(job);
         return mapToResponseDTO(savedJob);
@@ -66,6 +78,8 @@ public class JobServiceImpl implements JobService {
         responseDTO.setCreatedAt(job.getCreatedAt());
         responseDTO.setUpdatedAt(job.getUpdatedAt());
         responseDTO.setUserId(job.getUser().getId());
+        responseDTO.setPriorityScore(job.getPriorityScore());
+        responseDTO.setPriorityLevel(job.getPriorityLevel());
         return responseDTO;
     }
 
@@ -102,6 +116,9 @@ public class JobServiceImpl implements JobService {
         job.setInterviewDate(jobRequestDTO.getInterviewDate());
         job.setReminderDate(jobRequestDTO.getReminderDate());
         job.setNotes(jobRequestDTO.getNotes());
+
+        UserPreference pref = userPreferenceRepository.findByUserId(job.getUser().getId()).orElse(null);
+        priorityCalculatorService.calculateAndSetPriority(job, pref);
 
         Job updateJob = jobRepository.save(job);
         return mapToResponseDTO(updateJob);

@@ -2,6 +2,7 @@ import React, { useEffect, useState, useCallback } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import api from "../api/axiosConfig";
 import JobFilterPanel from "../components/JobFilterPanel";
+import JobPriorityBadge from "../components/JobPriorityBadge";
 import { useJobs } from "../context/JobContext";
 
 const Jobs = () => {
@@ -152,6 +153,7 @@ const Jobs = () => {
                 <th className="p-4 text-left">Location</th>
                 <th className="p-4 text-left">Salary</th>
                 <th className="p-4 text-left">Status</th>
+                <th className="p-4 text-left">Priority</th>
                 <th className="p-4 text-left">Type</th>
                 <th className="p-4 text-left">Applied Date</th>
                 <th className="p-4 text-left">Actions</th>
@@ -181,6 +183,9 @@ const Jobs = () => {
                         {formatEnum(job.status)}
                       </span>
                     </td>
+                    <td className="p-4">
+                      <JobPriorityBadge level={job.priorityLevel} score={job.priorityScore} />
+                    </td>
                     <td className="p-4 text-gray-500">
                       {formatEnum(job.jobType)}
                     </td>
@@ -207,7 +212,7 @@ const Jobs = () => {
                 ))
               ) : (
                 <tr>
-                  <td colSpan="8" className="text-center p-12 text-gray-500 font-medium">
+                  <td colSpan="9" className="text-center p-12 text-gray-500 font-medium">
                     No jobs found matching the selected filters.
                   </td>
                 </tr>

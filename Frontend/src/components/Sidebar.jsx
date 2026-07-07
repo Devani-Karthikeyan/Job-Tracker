@@ -6,6 +6,7 @@ import {
   FaBriefcase,
   FaPlus,
   FaSignOutAlt,
+  FaCog,
 } from "react-icons/fa";
 
 import { useAuth } from "../context/AuthContext";
@@ -74,6 +75,11 @@ const Sidebar = () => {
             <NavLink to="/add-job" className={linkClass}>
               <FaPlus />
               Add Job
+            </NavLink>
+
+            <NavLink to="/preferences" className={linkClass}>
+              <FaCog />
+              Preferences
             </NavLink>
 
           </nav>

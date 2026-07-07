@@ -2,6 +2,7 @@ package com.backend.job_tracker.dto.response;
 
 import com.backend.job_tracker.enumtype.JobStatus;
 import com.backend.job_tracker.enumtype.JobType;
+import com.backend.job_tracker.enumtype.PriorityLevel;
 import lombok.Data;
 
 import java.time.LocalDate;
@@ -23,4 +24,7 @@ public class JobResponseDTO {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private Long userId;
+    private Integer priorityScore;
+    private PriorityLevel priorityLevel;
 }
+
