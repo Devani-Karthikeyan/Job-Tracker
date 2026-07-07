@@ -2,6 +2,7 @@ package com.backend.job_tracker.model;
 
 import com.backend.job_tracker.enumtype.JobStatus;
 import com.backend.job_tracker.enumtype.JobType;
+import com.backend.job_tracker.enumtype.PriorityLevel;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -54,6 +55,13 @@ public class Job {
     private LocalDate reminderDate;
 
     private String notes;
+
+    @Column(name = "priority_score")
+    private Integer priorityScore = 0;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "priority_level")
+    private PriorityLevel priorityLevel = PriorityLevel.LOW;
 
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
